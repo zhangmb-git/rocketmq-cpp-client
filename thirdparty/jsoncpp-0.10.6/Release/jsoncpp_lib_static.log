@@ -1,0 +1,2 @@
+﻿  Not using Vcpkg because VcpkgEnabled is "false"
+  jsoncpp_lib_static.vcxproj -> D:\work\work\rocketmq-windows-client-cpp\Release\jsoncpp_lib_static.lib

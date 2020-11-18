@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{4DD2DAEF-56D8-4A21-A2BB-1E045532F209}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>mqtestclient</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>D:\work\work\rocketmq-windows-client-cpp\include;$(SolutionDir)thirdparty\boost_1_58_0;D:\work\client\CEFWebkitBrowser\3rdparty\NIM_Duilib_Framework;$(IncludePath)</IncludePath>
+    <LibraryPath>../libs;$(SolutionDir)thirdparty\boost_1_58_0\stage\lib;D:\work\client\CEFWebkitBrowser\3rdparty\NIM_Duilib_Framework\libs;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>D:\work\work\rocketmq-windows-client-cpp\include;D:\work\client\CEFWebkitBrowser\3rdparty\NIM_Duilib_Framework;$(SolutionDir)thirdparty\boost_1_58_0;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)thirdparty\boost_1_58_0\stage\lib;D:\work\client\CEFWebkitBrowser\3rdparty\NIM_Duilib_Framework\libs;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <VcpkgEnabled>false</VcpkgEnabled>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>rocketmq-client-cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="base\Base64.cpp" />
+    <ClCompile Include="base\BaseSocket.cpp" />
+    <ClCompile Include="base\Condition.cpp" />
+    <ClCompile Include="base\ConfigFileReader.cpp" />
+    <ClCompile Include="base\EncDec.cpp" />
+    <ClCompile Include="base\EventDispatch.cpp" />
+    <ClCompile Include="base\FileUtil.cpp" />
+    <ClCompile Include="base\HttpClient.cpp" />
+    <ClCompile Include="base\HttpParserWrapper.cpp" />
+    <ClCompile Include="base\HttpServer.cpp" />
+    <ClCompile Include="base\http_parser.cpp" />
+    <ClCompile Include="base\imconn.cpp" />
+    <ClCompile Include="base\ImPduBase.cpp" />
+    <ClCompile Include="base\im_conn_util.cpp" />
+    <ClCompile Include="base\Lock.cpp" />
+    <ClCompile Include="base\log4z.cpp" />
+    <ClCompile Include="base\netlib.cpp" />
+    <ClCompile Include="base\Process.cpp" />
+    <ClCompile Include="base\rbtree.cpp" />
+    <ClCompile Include="base\ServInfo.cpp" />
+    <ClCompile Include="base\SslSocket.cpp" />
+    <ClCompile Include="base\Thread.cpp" />
+    <ClCompile Include="base\ThreadPool.cpp" />
+    <ClCompile Include="base\TokenValidator.cpp" />
+    <ClCompile Include="base\util.cpp" />
+    <ClCompile Include="base\UtilPdu.cpp" />
+    <ClCompile Include="Consumer.cpp" />
+    <ClCompile Include="Global.cpp" />
+    <ClCompile Include="mqtestclient.cpp" />
+    <ClCompile Include="MsgHandler.cpp" />
+    <ClCompile Include="MsgListener.cpp" />
+    <ClCompile Include="Producer.cpp" />
+    <ClCompile Include="RocketMQ.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="base\atomic.h" />
+    <ClInclude Include="base\Base64.h" />
+    <ClInclude Include="base\BaseSocket.h" />
+    <ClInclude Include="base\Condition.h" />
+    <ClInclude Include="base\ConfigFileReader.h" />
+    <ClInclude Include="base\CPlusPlus11.h" />
+    <ClInclude Include="base\EncDec.h" />
+    <ClInclude Include="base\EventDispatch.h" />
+    <ClInclude Include="base\FileUtil.h" />
+    <ClInclude Include="base\HttpClient.h" />
+    <ClInclude Include="base\HttpParserWrapper.h" />
+    <ClInclude Include="base\HttpServer.h" />
+    <ClInclude Include="base\http_parser.h" />
+    <ClInclude Include="base\imconn.h" />
+    <ClInclude Include="base\impdu.h" />
+    <ClInclude Include="base\ImPduBase.h" />
+    <ClInclude Include="base\im_conn_util.h" />
+    <ClInclude Include="base\Lock.h" />
+    <ClInclude Include="base\log4z.h" />
+    <ClInclude Include="base\netlib.h" />
+    <ClInclude Include="base\ostype.h" />
+    <ClInclude Include="base\Process.h" />
+    <ClInclude Include="base\public_define.h" />
+    <ClInclude Include="base\rbtree.h" />
+    <ClInclude Include="base\ServInfo.h" />
+    <ClInclude Include="base\singleton.h" />
+    <ClInclude Include="base\SslSocket.h" />
+    <ClInclude Include="base\Task.h" />
+    <ClInclude Include="base\Thread.h" />
+    <ClInclude Include="base\ThreadPool.h" />
+    <ClInclude Include="base\TokenValidator.h" />
+    <ClInclude Include="base\util.h" />
+    <ClInclude Include="base\UtilPdu.h" />
+    <ClInclude Include="base\version.h" />
+    <ClInclude Include="Consumer.h" />
+    <ClInclude Include="Global.h" />
+    <ClInclude Include="MsgHandler.h" />
+    <ClInclude Include="MsgListener.h" />
+    <ClInclude Include="Producer.h" />
+    <ClInclude Include="RocketMQ.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="base\CMakeLists.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

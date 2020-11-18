@@ -1,0 +1,24 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(377,5): warning MSB8004: Output 目录未以斜杠结尾。  此生成实例将添加斜杠，因为必须有这个斜杠才能正确计算 Output 目录。
+  Not using Vcpkg because VcpkgEnabled is "false"
+  Consumer.cpp
+  Unknown compiler version - please run the configure tests and report the results
+d:\work\work\rocketmq-windows-client-cpp\thirdparty\boost_1_58_0\boost\asio\detail\config.hpp(227): warning C4005: “BOOST_ASIO_ERROR_CATEGORY_NOEXCEPT”: 宏重定义
+  d:\work\work\rocketmq-windows-client-cpp\thirdparty\boost_1_58_0\boost\asio\detail\config.hpp(213): note: 参见“BOOST_ASIO_ERROR_CATEGORY_NOEXCEPT”的前一个定义
+  MsgListener.cpp
+  Unknown compiler version - please run the configure tests and report the results
+d:\work\work\rocketmq-windows-client-cpp\thirdparty\boost_1_58_0\boost\asio\detail\config.hpp(227): warning C4005: “BOOST_ASIO_ERROR_CATEGORY_NOEXCEPT”: 宏重定义
+  d:\work\work\rocketmq-windows-client-cpp\thirdparty\boost_1_58_0\boost\asio\detail\config.hpp(213): note: 参见“BOOST_ASIO_ERROR_CATEGORY_NOEXCEPT”的前一个定义
+  RocketMQ.cpp
+  Unknown compiler version - please run the configure tests and report the results
+d:\work\work\rocketmq-windows-client-cpp\thirdparty\boost_1_58_0\boost\asio\detail\config.hpp(227): warning C4005: “BOOST_ASIO_ERROR_CATEGORY_NOEXCEPT”: 宏重定义
+  d:\work\work\rocketmq-windows-client-cpp\thirdparty\boost_1_58_0\boost\asio\detail\config.hpp(213): note: 参见“BOOST_ASIO_ERROR_CATEGORY_NOEXCEPT”的前一个定义
+  mqtestclient.cpp
+  Unknown compiler version - please run the configure tests and report the results
+d:\work\work\rocketmq-windows-client-cpp\thirdparty\boost_1_58_0\boost\asio\detail\config.hpp(227): warning C4005: “BOOST_ASIO_ERROR_CATEGORY_NOEXCEPT”: 宏重定义
+  d:\work\work\rocketmq-windows-client-cpp\thirdparty\boost_1_58_0\boost\asio\detail\config.hpp(213): note: 参见“BOOST_ASIO_ERROR_CATEGORY_NOEXCEPT”的前一个定义
+  正在生成代码
+  3 of 634 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  已完成代码的生成
+  mqtestclient.vcxproj -> D:\work\work\rocketmq-windows-client-cpp\bin\mqtestclient.exe
