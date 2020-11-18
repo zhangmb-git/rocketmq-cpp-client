@@ -22,7 +22,6 @@
 #include "RocketMQClient.h"
 
 namespace rocketmq {
-//<!***************************************************************************
 enum PullStatus {
   FOUND,
   NO_NEW_MSG,
@@ -31,29 +30,27 @@ enum PullStatus {
   BROKER_TIMEOUT  // indicate pull request timeout or received NULL response
 };
 
-static const char* EnumStrings[] = {"FOUND", "NO_NEW_MSG", "NO_MATCHED_MSG",
-                                    "OFFSET_ILLEGAL", "BROKER_TIMEOUT"};
+static const char* EnumStrings[] = {"FOUND", "NO_NEW_MSG", "NO_MATCHED_MSG", "OFFSET_ILLEGAL", "BROKER_TIMEOUT"};
 
-//<!***************************************************************************
 class ROCKETMQCLIENT_API PullResult {
  public:
   PullResult();
   PullResult(PullStatus status);
-  PullResult(PullStatus pullStatus, int64 nextBeginOffset,
-             int64 minOffset, int64 maxOffset);
+  PullResult(PullStatus pullStatus, int64 nextBeginOffset, int64 minOffset, int64 maxOffset);
 
-  PullResult(PullStatus pullStatus, int64 nextBeginOffset,
-             int64 minOffset, int64 maxOffset,
+  PullResult(PullStatus pullStatus,
+             int64 nextBeginOffset,
+             int64 minOffset,
+             int64 maxOffset,
              const std::vector<MQMessageExt>& src);
 
   virtual ~PullResult();
 
   std::string toString() {
     std::stringstream ss;
-    ss << "PullResult [ pullStatus=" << EnumStrings[pullStatus]
-       << ", nextBeginOffset=" << nextBeginOffset << ", minOffset=" << minOffset
-       << ", maxOffset=" << maxOffset
-       << ", msgFoundList=" << msgFoundList.size() << " ]";
+    ss << "PullResult [ pullStatus=" << EnumStrings[pullStatus] << ", nextBeginOffset=" << nextBeginOffset
+       << ", minOffset=" << minOffset << ", maxOffset=" << maxOffset << ", msgFoundList=" << msgFoundList.size()
+       << " ]";
     return ss.str();
   }
 
@@ -64,6 +61,5 @@ class ROCKETMQCLIENT_API PullResult {
   int64 maxOffset;
   std::vector<MQMessageExt> msgFoundList;
 };
-//<!***************************************************************************
-}  //<!end namespace;
+}  // namespace rocketmq
 #endif

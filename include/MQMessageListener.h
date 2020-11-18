@@ -24,67 +24,34 @@
 namespace rocketmq {
 //<!***************************************************************************
 enum ConsumeStatus {
-  //consume success, msg will be cleard from memory
+  // consume success, msg will be cleard from memory
   CONSUME_SUCCESS,
-  //consume fail, but will be re-consume by call messageLisenter again
+  // consume fail, but will be re-consume by call messageLisenter again
   RECONSUME_LATER
 };
 
-/*enum ConsumeOrderlyStatus
-{*/
-/**
- * Success consumption
- */
-// SUCCESS,
-/**
- * Rollback consumption(only for binlog consumption)
- */
-// ROLLBACK,
-/**
- * Commit offset(only for binlog consumption)
- */
-// COMMIT,
-/**
- * Suspend current queue a moment
- */
-// SUSPEND_CURRENT_QUEUE_A_MOMENT
-/*};*/
+enum MessageListenerType { messageListenerDefaultly = 0, messageListenerOrderly = 1, messageListenerConcurrently = 2 };
 
-enum MessageListenerType {
-  messageListenerDefaultly = 0,
-  messageListenerOrderly = 1,
-  messageListenerConcurrently = 2
-};
-
-//<!***************************************************************************
 class ROCKETMQCLIENT_API MQMessageListener {
  public:
   virtual ~MQMessageListener() {}
   virtual ConsumeStatus consumeMessage(const std::vector<MQMessageExt>& msgs) = 0;
-  virtual MessageListenerType getMessageListenerType() {
-    return messageListenerDefaultly;
-  }
+  virtual MessageListenerType getMessageListenerType() { return messageListenerDefaultly; }
 };
 
 class ROCKETMQCLIENT_API MessageListenerOrderly : public MQMessageListener {
  public:
   virtual ~MessageListenerOrderly() {}
   virtual ConsumeStatus consumeMessage(const std::vector<MQMessageExt>& msgs) = 0;
-  virtual MessageListenerType getMessageListenerType() {
-    return messageListenerOrderly;
-  }
+  virtual MessageListenerType getMessageListenerType() { return messageListenerOrderly; }
 };
 
-class ROCKETMQCLIENT_API MessageListenerConcurrently
-    : public MQMessageListener {
+class ROCKETMQCLIENT_API MessageListenerConcurrently : public MQMessageListener {
  public:
   virtual ~MessageListenerConcurrently() {}
   virtual ConsumeStatus consumeMessage(const std::vector<MQMessageExt>& msgs) = 0;
-  virtual MessageListenerType getMessageListenerType() {
-    return messageListenerConcurrently;
-  }
+  virtual MessageListenerType getMessageListenerType() { return messageListenerConcurrently; }
 };
 
-//<!***************************************************************************
-}  //<!end namespace;
+}  // namespace rocketmq
 #endif

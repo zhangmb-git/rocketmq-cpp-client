@@ -19,6 +19,8 @@
 
 #include <stdlib.h>
 #include <string>
+#include "UtilAll.h"
+
 namespace rocketmq {
 //<!***************************************************************************
 class NamesrvConfig {
@@ -26,7 +28,7 @@ class NamesrvConfig {
   NamesrvConfig() {
     m_kvConfigPath = "";
 
-    char* home = getenv(ROCKETMQ_HOME_ENV.c_str());
+    char* home = getenv(rocketmq::ROCKETMQ_HOME_ENV.c_str());
     if (home) {
       m_rocketmqHome = home;
     } else {
@@ -36,15 +38,11 @@ class NamesrvConfig {
 
   const string& getRocketmqHome() const { return m_rocketmqHome; }
 
-  void setRocketmqHome(const string& rocketmqHome) {
-    m_rocketmqHome = rocketmqHome;
-  }
+  void setRocketmqHome(const string& rocketmqHome) { m_rocketmqHome = rocketmqHome; }
 
   const string& getKvConfigPath() const { return m_kvConfigPath; }
 
-  void setKvConfigPath(const string& kvConfigPath) {
-    m_kvConfigPath = kvConfigPath;
-  }
+  void setKvConfigPath(const string& kvConfigPath) { m_kvConfigPath = kvConfigPath; }
 
  private:
   string m_rocketmqHome;
@@ -52,5 +50,5 @@ class NamesrvConfig {
 };
 
 //<!***************************************************************************
-}  //<!end namespace;
+}  // namespace rocketmq
 #endif

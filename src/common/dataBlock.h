@@ -1,19 +1,19 @@
 /*
-* Licensed to the Apache Software Foundation (ASF) under one or more
-* contributor license agreements.  See the NOTICE file distributed with
-* this work for additional information regarding copyright ownership.
-* The ASF licenses this file to You under the Apache License, Version 2.0
-* (the "License"); you may not use this file except in compliance with
-* the License.  You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #ifndef __DATABLOCK_H__
 #define __DATABLOCK_H__
 
@@ -51,6 +51,8 @@ class ROCKETMQCLIENT_API MemoryBlock {
   /** Creates a copy of another memory block. */
   MemoryBlock(const MemoryBlock&);
 
+  MemoryBlock(MemoryBlock&&);
+
   /** Destructor. */
   ~MemoryBlock();
 
@@ -58,6 +60,8 @@ class ROCKETMQCLIENT_API MemoryBlock {
       This block will be resized and copied to exactly match the other one.
   */
   MemoryBlock& operator=(const MemoryBlock&);
+
+  MemoryBlock& operator=(MemoryBlock&&);
 
   //==============================================================================
   /** Compares two memory blocks.
@@ -156,8 +160,7 @@ class ROCKETMQCLIENT_API MemoryBlock {
      be clipped to
       within the range before being used.
   */
-  void insert(const void* dataToInsert, int numBytesToInsert,
-              int insertPosition);
+  void insert(const void* dataToInsert, int numBytesToInsert, int insertPosition);
 
   /** Chops out a section  of the block.
 
@@ -200,6 +203,6 @@ class ROCKETMQCLIENT_API MemoryBlock {
   int size;
   char* data;
 };
-}
+}  // namespace rocketmq
 
 #endif

@@ -21,23 +21,28 @@ namespace rocketmq {
 //<!************************************************************************
 MQClientManager::MQClientManager() {}
 
-MQClientManager::~MQClientManager() { m_factoryTable.clear(); }
+MQClientManager::~MQClientManager() {
+  m_factoryTable.clear();
+}
 
 MQClientManager* MQClientManager::getInstance() {
   static MQClientManager instance;
   return &instance;
 }
 
-MQClientFactory* MQClientManager::getMQClientFactory(
-    const string& clientId, int pullThreadNum, uint64_t tcpConnectTimeout,
-    uint64_t tcpTransportTryLockTimeout, string unitName) {
+MQClientFactory* MQClientManager::getMQClientFactory(const string& clientId,
+                                                     int pullThreadNum,
+                                                     uint64_t tcpConnectTimeout,
+                                                     uint64_t tcpTransportTryLockTimeout,
+                                                     string unitName,
+                                                     bool enableSsl,
+                                                     const std::string& sslPropertyFile) {
   FTMAP::iterator it = m_factoryTable.find(clientId);
   if (it != m_factoryTable.end()) {
     return it->second;
   } else {
-    MQClientFactory* factory =
-        new MQClientFactory(clientId, pullThreadNum, tcpConnectTimeout,
-                            tcpTransportTryLockTimeout, unitName);
+    MQClientFactory* factory = new MQClientFactory(clientId, pullThreadNum, tcpConnectTimeout,
+                                                   tcpTransportTryLockTimeout, unitName, enableSsl, sslPropertyFile);
     m_factoryTable[clientId] = factory;
     return factory;
   }
@@ -51,4 +56,4 @@ void MQClientManager::removeClientFactory(const string& clientId) {
   }
 }
 //<!************************************************************************
-}  //<!end namespace;
+}  // namespace rocketmq

@@ -35,15 +35,14 @@ class PullRequest {
   int64 getCacheMinOffset();
   int64 getCacheMaxOffset();
   int getCacheMsgCount();
-  void getMessageByQueueOffset(vector<MQMessageExt>& msgs, int64 minQueueOffset,
-                               int64 maxQueueOffset);
+  void getMessageByQueueOffset(vector<MQMessageExt>& msgs, int64 minQueueOffset, int64 maxQueueOffset);
   int64 removeMessage(vector<MQMessageExt>& msgs);
   void clearAllMsgs();
 
   PullRequest& operator=(const PullRequest& other);
 
-  void setDroped(bool droped);
-  bool isDroped() const;
+  void setDropped(bool dropped);
+  bool isDropped() const;
 
   int64 getNextOffset();
   void setNextOffset(int64 nextoffset);
@@ -59,6 +58,7 @@ class PullRequest {
   int64 getLastLockTimestamp() const;
   void setLastPullTimestamp(uint64 time);
   uint64 getLastPullTimestamp() const;
+  bool isPullRequestExpired() const;
   void setLastConsumeTimestamp(uint64 time);
   uint64 getLastConsumeTimestamp() const;
   void setTryUnlockTimes(int time);
@@ -67,31 +67,35 @@ class PullRequest {
   int64 commit();
   void makeMessageToCosumeAgain(vector<MQMessageExt>& msgs);
   boost::timed_mutex& getPullRequestCriticalSection();
-  void removePullMsgEvent();
+  bool removePullMsgEvent(bool force = false);
   bool addPullMsgEvent();
+  /**
+   * Check if there is an in-flight pull request.
+   */
+  bool hasInFlightPullRequest() const;
 
  public:
   MQMessageQueue m_messageQueue;
   static const uint64 RebalanceLockInterval;     // ms
   static const uint64 RebalanceLockMaxLiveTime;  // ms
+  static const uint64 MAX_PULL_IDLE_TIME;        // ms
 
  private:
   string m_groupname;
   int64 m_nextOffset;
   int64 m_queueOffsetMax;
-  boost::atomic<bool> m_bDroped;
+  boost::atomic<bool> m_bDropped;
   boost::atomic<bool> m_bLocked;
   map<int64, MQMessageExt> m_msgTreeMap;
   map<int64, MQMessageExt> m_msgTreeMapTemp;
   boost::mutex m_pullRequestLock;
   uint64 m_lastLockTimestamp;  // ms
-  uint64 m_tryUnlockTimes;
+  // uint64 m_tryUnlockTimes;
   uint64 m_lastPullTimestamp;
   uint64 m_lastConsumeTimestamp;
   boost::timed_mutex m_consumeLock;
-  boost::atomic<bool> m_bPullMsgEventInprogress;
 };
 //<!************************************************************************
-}  //<!end namespace;
+}  // namespace rocketmq
 
 #endif

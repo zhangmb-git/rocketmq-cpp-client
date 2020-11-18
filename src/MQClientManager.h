@@ -27,10 +27,13 @@ namespace rocketmq {
 class MQClientManager {
  public:
   virtual ~MQClientManager();
-  MQClientFactory* getMQClientFactory(const string& clientId, int pullThreadNum,
-                                      uint64_t tcpConnectTimeout,
-                                      uint64_t tcpTransportTryLockTimeout,
-                                      string unitName);
+  virtual MQClientFactory* getMQClientFactory(const string& clientId,
+                                              int pullThreadNum,
+                                              uint64_t tcpConnectTimeout,
+                                              uint64_t tcpTransportTryLockTimeout,
+                                              string unitName,
+                                              bool enableSsl,
+                                              const std::string& sslPropertyFile);
   void removeClientFactory(const string& clientId);
 
   static MQClientManager* getInstance();
@@ -44,6 +47,6 @@ class MQClientManager {
 };
 
 //<!***************************************************************************
-}  //<!end namespace;
+}  // namespace rocketmq
 
 #endif

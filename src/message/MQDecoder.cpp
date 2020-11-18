@@ -23,7 +23,9 @@
 #include "MemoryOutputStream.h"
 #include "MessageSysFlag.h"
 #include "UtilAll.h"
+
 namespace rocketmq {
+
 //<!***************************************************************************
 const int MQDecoder::MSG_ID_LENGTH = 8 + 8;
 
@@ -34,6 +36,7 @@ int MQDecoder::MessageMagicCodePostion = 4;
 int MQDecoder::MessageFlagPostion = 16;
 int MQDecoder::MessagePhysicOffsetPostion = 28;
 int MQDecoder::MessageStoreTimestampPostion = 56;
+
 //<!***************************************************************************
 string MQDecoder::createMessageId(sockaddr addr, int64 offset) {
   int host, port;
@@ -51,32 +54,27 @@ string MQDecoder::createMessageId(sockaddr addr, int64 offset) {
 }
 
 MQMessageId MQDecoder::decodeMessageId(const string& msgId) {
+  string ipStr = msgId.substr(0, 8);
+  string portStr = msgId.substr(8, 8);
+  string offsetStr = msgId.substr(16, 16);
 
-  string ipstr = msgId.substr(0, 8);
-  string portstr = msgId.substr(8, 8);
-  string offsetstr = msgId.substr(16);
+  int num = strspn(offsetStr.c_str(), "F");
+  offsetStr = offsetStr.substr(num, 16 - num);
 
   char* end;
-  int ipint = strtoul(ipstr.c_str(), &end, 16);
-  int portint = strtoul(portstr.c_str(), &end, 16);
-
-  int64 offset = UtilAll::hexstr2ull(offsetstr.c_str());
-
-  offset = n2hll(offset);
-
-  portint = ntohl(portint);
-  short port = portint;
+  int ipInt = strtoul(ipStr.c_str(), &end, 16);
+  int portInt = strtoul(portStr.c_str(), &end, 16);
+  uint64 offset = strtoul(offsetStr.c_str(), &end, 16);
+  // int64 offset = UtilAll::hexstr2ull(offsetStr.c_str());
 
   struct sockaddr_in sa;
   sa.sin_family = AF_INET;
-  sa.sin_port = htons(port);
-  sa.sin_addr.s_addr = ipint;
-
+  sa.sin_port = htons(portInt);
+  sa.sin_addr.s_addr = htonl(ipInt);
   sockaddr addr;
   memcpy(&addr, &sa, sizeof(sockaddr));
 
   MQMessageId id(addr, offset);
-
   return id;
 }
 
@@ -158,8 +156,7 @@ MQMessageExt* MQDecoder::decode(MemoryInputStream& byteBuffer, bool readBody) {
       string msgbody(pBody, len);
 
       // decompress body
-      if ((sysFlag & MessageSysFlag::CompressedFlag) ==
-          MessageSysFlag::CompressedFlag) {
+      if ((sysFlag & MessageSysFlag::CompressedFlag) == MessageSysFlag::CompressedFlag) {
         string outbody;
         if (UtilAll::inflate(msgbody, outbody)) {
           msgExt->setBody(outbody);
@@ -191,17 +188,21 @@ MQMessageExt* MQDecoder::decode(MemoryInputStream& byteBuffer, bool readBody) {
 
     map<string, string> propertiesMap;
     string2messageProperties(propertiesString, propertiesMap);
-    msgExt->setProperties(propertiesMap);
+    msgExt->setPropertiesInternal(propertiesMap);
     propertiesMap.clear();
   }
 
   // 18 msg ID
-  string msgId = createMessageId(msgExt->getStoreHost(),
-                                 (int64)msgExt->getCommitLogOffset());
+  string offsetMsgId = createMessageId(msgExt->getStoreHost(), (int64)msgExt->getCommitLogOffset());
+  msgExt->setOffsetMsgId(offsetMsgId);
+
+  string msgId = msgExt->getProperty(MQMessage::PROPERTY_UNIQ_CLIENT_MESSAGE_ID_KEYIDX);
+  if (msgId.empty()) {
+    msgId = offsetMsgId;
+  }
   msgExt->setMsgId(msgId);
 
-  // LOG_INFO("get msgExt from remote server, its contents
-  // are:%s",msgExt->toString().c_str());
+  // LOG_INFO("get msgExt from remote server, its contents are:%s", msgExt->toString().c_str());
   return msgExt;
 }
 
@@ -210,8 +211,7 @@ void MQDecoder::decodes(const MemoryBlock* mem, vector<MQMessageExt>& mqvec) {
   decodes(mem, mqvec, true);
 }
 
-void MQDecoder::decodes(const MemoryBlock* mem, vector<MQMessageExt>& mqvec,
-                        bool readBody) {
+void MQDecoder::decodes(const MemoryBlock* mem, vector<MQMessageExt>& mqvec, bool readBody) {
   MemoryInputStream rawInput(*mem, true);
 
   while (rawInput.getNumBytesRemaining() > 0) {
@@ -220,25 +220,21 @@ void MQDecoder::decodes(const MemoryBlock* mem, vector<MQMessageExt>& mqvec,
   }
 }
 
-string MQDecoder::messageProperties2String(
-    const map<string, string>& properties) {
+string MQDecoder::messageProperties2String(const map<string, string>& properties) {
   string os;
-  map<string, string>::const_iterator it = properties.begin();
 
-  for (; it != properties.end(); ++it) {
-    // os << it->first << NAME_VALUE_SEPARATOR << it->second <<
-    // PROPERTY_SEPARATOR;
-    os.append(it->first);
+  for (const auto& it : properties) {
+    // os << it->first << NAME_VALUE_SEPARATOR << it->second << PROPERTY_SEPARATOR;
+    os.append(it.first);
     os += NAME_VALUE_SEPARATOR;
-    os.append(it->second);
+    os.append(it.second);
     os += PROPERTY_SEPARATOR;
   }
 
   return os;
 }
 
-void MQDecoder::string2messageProperties(const string& propertiesString,
-                                         map<string, string>& properties) {
+void MQDecoder::string2messageProperties(const string& propertiesString, map<string, string>& properties) {
   vector<string> out;
   UtilAll::Split(out, propertiesString, PROPERTY_SEPARATOR);
 
@@ -251,4 +247,4 @@ void MQDecoder::string2messageProperties(const string& propertiesString,
     }
   }
 }
-}  //<!end namespace;
+}  // namespace rocketmq

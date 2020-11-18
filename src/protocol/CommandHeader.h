@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef __COMMANDCUSTOMHEADER_H__
 #define __COMMANDCUSTOMHEADER_H__
 
+#include <map>
 #include <string>
 #include "MQClientException.h"
 #include "MessageSysFlag.h"
@@ -32,8 +33,66 @@ class CommandHeader {
  public:
   virtual ~CommandHeader() {}
   virtual void Encode(Json::Value& outData) {}
-  virtual void SetDeclaredFieldOfCommandHeader(
-      map<string, string>& requestMap) {}
+  virtual void SetDeclaredFieldOfCommandHeader(map<string, string>& requestMap) {}
+};
+
+class CheckTransactionStateRequestHeader : public CommandHeader {
+ public:
+  CheckTransactionStateRequestHeader() {}
+  CheckTransactionStateRequestHeader(long tableOffset,
+                                     long commLogOffset,
+                                     const std::string& msgid,
+                                     const std::string& transactionId,
+                                     const std::string& offsetMsgId)
+      : m_tranStateTableOffset(tableOffset),
+        m_commitLogOffset(commLogOffset),
+        m_msgId(msgid),
+        m_transactionId(transactionId),
+        m_offsetMsgId(offsetMsgId) {}
+  virtual ~CheckTransactionStateRequestHeader() {}
+  virtual void Encode(Json::Value& outData);
+  static CommandHeader* Decode(Json::Value& ext);
+  virtual void SetDeclaredFieldOfCommandHeader(std::map<std::string, std::string>& requestMap);
+  std::string toString();
+
+ public:
+  long m_tranStateTableOffset;
+  long m_commitLogOffset;
+  std::string m_msgId;
+  std::string m_transactionId;
+  std::string m_offsetMsgId;
+};
+
+class EndTransactionRequestHeader : public CommandHeader {
+ public:
+  EndTransactionRequestHeader() {}
+  EndTransactionRequestHeader(const std::string& groupName,
+                              long tableOffset,
+                              long commLogOffset,
+                              int commitOrRoll,
+                              bool fromTransCheck,
+                              const std::string& msgid,
+                              const std::string& transId)
+      : m_producerGroup(groupName),
+        m_tranStateTableOffset(tableOffset),
+        m_commitLogOffset(commLogOffset),
+        m_commitOrRollback(commitOrRoll),
+        m_fromTransactionCheck(fromTransCheck),
+        m_msgId(msgid),
+        m_transactionId(transId) {}
+  virtual ~EndTransactionRequestHeader() {}
+  virtual void Encode(Json::Value& outData);
+  virtual void SetDeclaredFieldOfCommandHeader(std::map<string, string>& requestMap);
+  std::string toString();
+
+ public:
+  std::string m_producerGroup;
+  long m_tranStateTableOffset;
+  long m_commitLogOffset;
+  int m_commitOrRollback;
+  bool m_fromTransactionCheck;
+  std::string m_msgId;
+  std::string m_transactionId;
 };
 
 //<!************************************************************************
@@ -90,12 +149,12 @@ class SendMessageRequestHeader : public CommandHeader {
         bornTimestamp(0),
         flag(0),
         reconsumeTimes(0),
-        unitMode(false) {}
+        unitMode(false),
+        consumeRetryTimes(0),
+        batch(false) {}
   virtual ~SendMessageRequestHeader() {}
   virtual void Encode(Json::Value& outData);
   virtual void SetDeclaredFieldOfCommandHeader(map<string, string>& requestMap);
-  int getReconsumeTimes();
-  void setReconsumeTimes(int input_reconsumeTimes);
 
  public:
   string producerGroup;
@@ -109,12 +168,57 @@ class SendMessageRequestHeader : public CommandHeader {
   string properties;
   int reconsumeTimes;
   bool unitMode;
+  int consumeRetryTimes;
+  bool batch;
+};
+
+//<!************************************************************************
+class SendMessageRequestHeaderV2 : public CommandHeader {
+ public:
+  SendMessageRequestHeaderV2(SendMessageRequestHeader v1) {
+    a = v1.producerGroup;
+    b = v1.topic;
+    c = v1.defaultTopic;
+    d = v1.defaultTopicQueueNums;
+    e = v1.queueId;
+    f = v1.sysFlag;
+    g = v1.bornTimestamp;
+    h = v1.flag;
+    i = v1.properties;
+    j = v1.reconsumeTimes;
+    k = v1.unitMode;
+    l = v1.consumeRetryTimes;
+    m = v1.batch;
+  }
+  SendMessageRequestHeaderV2() : d(0), e(0), f(0), g(0), h(0), j(0), k(false), l(16), m(false) {}
+  virtual ~SendMessageRequestHeaderV2() {}
+  virtual void Encode(Json::Value& outData);
+  virtual void SetDeclaredFieldOfCommandHeader(map<string, string>& requestMap);
+  virtual void CreateSendMessageRequestHeaderV1(SendMessageRequestHeader& v1);
+
+ public:
+  string a;  // producerGroup
+  string b;  // topic;
+  string c;  // defaultTopic;
+  int d;     // defaultTopicQueueNums;
+  int e;     // queueId;
+  int f;     // sysFlag;
+  int64 g;   // bornTimestamp;
+  int h;     // flag;
+  string i;  // properties;
+  int j;     // reconsumeTimes;
+  bool k;    // unitMode;
+  int l;     // consumeRetryTimes;
+  bool m;    // batch;
 };
 
 //<!************************************************************************
 class SendMessageResponseHeader : public CommandHeader {
  public:
-  SendMessageResponseHeader() : queueId(0), queueOffset(0) { msgId.clear(); }
+  SendMessageResponseHeader() : queueId(0), queueOffset(0) {
+    msgId.clear();
+    regionId.clear();
+  }
   virtual ~SendMessageResponseHeader() {}
   static CommandHeader* Decode(Json::Value& ext);
   virtual void SetDeclaredFieldOfCommandHeader(map<string, string>& requestMap);
@@ -123,6 +227,8 @@ class SendMessageResponseHeader : public CommandHeader {
   string msgId;
   int queueId;
   int64 queueOffset;
+  string regionId;
+  string transactionId;
 };
 
 //<!************************************************************************
@@ -156,11 +262,7 @@ class PullMessageRequestHeader : public CommandHeader {
 //<!************************************************************************
 class PullMessageResponseHeader : public CommandHeader {
  public:
-  PullMessageResponseHeader()
-      : suggestWhichBrokerId(0),
-        nextBeginOffset(0),
-        minOffset(0),
-        maxOffset(0) {}
+  PullMessageResponseHeader() : suggestWhichBrokerId(0), nextBeginOffset(0), minOffset(0), maxOffset(0) {}
   virtual ~PullMessageResponseHeader() {}
   static CommandHeader* Decode(Json::Value& ext);
   virtual void SetDeclaredFieldOfCommandHeader(map<string, string>& requestMap);
@@ -359,6 +461,10 @@ class ConsumerSendMsgBackRequestHeader : public CommandHeader {
   string group;
   int delayLevel;
   int64 offset;
+  bool unitMode = false;
+  string originMsgId;
+  string originTopic;
+  int maxReconsumeTimes = 16;
 };
 
 //<!***************************************************************************
@@ -426,6 +532,6 @@ class NotifyConsumerIdsChangedRequestHeader : public CommandHeader {
 };
 
 //<!***************************************************************************
-}  //<!end namespace;
+}  // namespace rocketmq
 
 #endif

@@ -32,8 +32,7 @@ class PullAPIWrapper {
   PullAPIWrapper(MQClientFactory* mQClientFactory, const string& consumerGroup);
   ~PullAPIWrapper();
 
-  PullResult processPullResult(const MQMessageQueue& mq, PullResult* pullResult,
-                               SubscriptionData* subscriptionData);
+  PullResult processPullResult(const MQMessageQueue& mq, PullResult* pullResult, SubscriptionData* subscriptionData);
 
   PullResult* pullKernelImpl(const MQMessageQueue& mq,        // 1
                              string subExpression,            // 2
@@ -62,6 +61,6 @@ class PullAPIWrapper {
 };
 
 //<!***************************************************************************
-}  //<!end namespace;
+}  // namespace rocketmq
 
 #endif  //<! _PULLAPIWRAPPER_H_

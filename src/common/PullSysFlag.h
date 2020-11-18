@@ -20,8 +20,7 @@ namespace rocketmq {
 //<!************************************************************************
 class PullSysFlag {
  public:
-  static int buildSysFlag(bool commitOffset, bool suspend, bool subscription,
-                          bool classFilter);
+  static int buildSysFlag(bool commitOffset, bool suspend, bool subscription, bool classFilter);
 
   static int clearCommitOffsetFlag(int sysFlag);
   static bool hasCommitOffsetFlag(int sysFlag);
@@ -37,5 +36,5 @@ class PullSysFlag {
 };
 
 //<!***************************************************************************
-}  //<!end namespace;
+}  // namespace rocketmq
 #endif

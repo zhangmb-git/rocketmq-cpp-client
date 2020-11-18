@@ -18,8 +18,8 @@
 #define __MESSAGEEXT_H__
 
 #ifdef WIN32
-#include <Winsock2.h>
 #include <Windows.h>
+#include <Winsock2.h>
 #else
 #include <sys/socket.h>
 #endif
@@ -29,12 +29,15 @@
 
 namespace rocketmq {
 //<!message extend class, which was generated on broker;
-//<!***************************************************************************
 class ROCKETMQCLIENT_API MQMessageExt : public MQMessage {
  public:
   MQMessageExt();
-  MQMessageExt(int queueId, int64 bornTimestamp, sockaddr bornHost,
-               int64 storeTimestamp, sockaddr storeHost, std::string msgId);
+  MQMessageExt(int queueId,
+               int64 bornTimestamp,
+               sockaddr bornHost,
+               int64 storeTimestamp,
+               sockaddr storeHost,
+               std::string msgId);
 
   virtual ~MQMessageExt();
 
@@ -61,8 +64,8 @@ class ROCKETMQCLIENT_API MQMessageExt : public MQMessage {
   const std::string& getMsgId() const;
   void setMsgId(const std::string& msgId);
 
-  int getSysFlag() const;
-  void setSysFlag(int sysFlag);
+  const std::string& getOffsetMsgId() const;
+  void setOffsetMsgId(const std::string& offsetMsgId);
 
   int getBodyCRC() const;
   void setBodyCRC(int bodyCRC);
@@ -84,16 +87,12 @@ class ROCKETMQCLIENT_API MQMessageExt : public MQMessage {
 
   std::string toString() const {
     std::stringstream ss;
-    ss << "MessageExt [queueId=" << m_queueId << ", storeSize=" << m_storeSize
-       << ", queueOffset=" << m_queueOffset << ", sysFlag=" << m_sysFlag
-       << ", bornTimestamp=" << m_bornTimestamp
-       << ", bornHost=" << getBornHostString()
-       << ", storeTimestamp=" << m_storeTimestamp
-       << ", storeHost=" << getStoreHostString() << ", msgId=" << m_msgId
+    ss << "MessageExt [queueId=" << m_queueId << ", storeSize=" << m_storeSize << ", queueOffset=" << m_queueOffset
+       << ", sysFlag=" << m_sysFlag << ", bornTimestamp=" << m_bornTimestamp << ", bornHost=" << getBornHostString()
+       << ", storeTimestamp=" << m_storeTimestamp << ", storeHost=" << getStoreHostString() << ", msgId=" << m_msgId
        << ", commitLogOffset=" << m_commitLogOffset << ", bodyCRC=" << m_bodyCRC
-       << ", reconsumeTimes=" << m_reconsumeTimes
-       << ", preparedTransactionOffset=" << m_preparedTransactionOffset << ",  "
-       << MQMessage::toString() << "]";
+       << ", reconsumeTimes=" << m_reconsumeTimes << ", preparedTransactionOffset=" << m_preparedTransactionOffset
+       << ",  " << MQMessage::toString() << "]";
     return ss.str();
   }
 
@@ -105,13 +104,12 @@ class ROCKETMQCLIENT_API MQMessageExt : public MQMessage {
   int64 m_preparedTransactionOffset;
   int m_queueId;
   int m_storeSize;
-  int m_sysFlag;
   int m_bodyCRC;
   int m_reconsumeTimes;
   sockaddr m_bornHost;
   sockaddr m_storeHost;
   std::string m_msgId;
+  std::string m_offsetMsgId;
 };
-//<!***************************************************************************
-}  //<!end namespace;
+}  // namespace rocketmq
 #endif

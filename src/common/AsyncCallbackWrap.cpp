@@ -20,15 +20,13 @@
 #include "MQClientAPIImpl.h"
 #include "MQDecoder.h"
 #include "MQMessageQueue.h"
-#include "MQProtos.h"
 #include "PullAPIWrapper.h"
 #include "PullResultExt.h"
 #include "ResponseFuture.h"
 
 namespace rocketmq {
 //<!***************************************************************************
-AsyncCallbackWrap::AsyncCallbackWrap(AsyncCallback* pAsyncCallback,
-                                     MQClientAPIImpl* pclientAPI)
+AsyncCallbackWrap::AsyncCallbackWrap(AsyncCallback* pAsyncCallback, MQClientAPIImpl* pclientAPI)
     : m_pAsyncCallBack(pAsyncCallback), m_pClientAPI(pclientAPI) {}
 
 AsyncCallbackWrap::~AsyncCallbackWrap() {
@@ -41,18 +39,16 @@ SendCallbackWrap::SendCallbackWrap(const string& brokerName,
                                    const MQMessage& msg,
                                    AsyncCallback* pAsyncCallback,
                                    MQClientAPIImpl* pclientAPI)
-    : AsyncCallbackWrap(pAsyncCallback, pclientAPI),
-      m_msg(msg),
-      m_brokerName(brokerName) {}
+    : AsyncCallbackWrap(pAsyncCallback, pclientAPI), m_msg(msg), m_brokerName(brokerName) {}
 
 void SendCallbackWrap::onException() {
-  if (m_pAsyncCallBack == NULL) return;
+  if (m_pAsyncCallBack == NULL)
+    return;
 
   SendCallback* pCallback = static_cast<SendCallback*>(m_pAsyncCallBack);
   if (pCallback) {
-    unique_ptr<MQException> exception(new MQException(
-        "send msg failed due to wait response timeout or network error", -1,
-        __FILE__, __LINE__));
+    unique_ptr<MQException> exception(
+        new MQException("send msg failed due to wait response timeout or network error", -1, __FILE__, __LINE__));
     pCallback->onException(*exception);
     if (pCallback->getSendCallbackType() == autoDeleteSendCallback) {
       deleteAndZero(pCallback);
@@ -60,13 +56,13 @@ void SendCallbackWrap::onException() {
   }
 }
 
-void SendCallbackWrap::operationComplete(ResponseFuture* pResponseFuture,
-                                         bool bProducePullRequest) {
+void SendCallbackWrap::operationComplete(ResponseFuture* pResponseFuture, bool bProducePullRequest) {
   unique_ptr<RemotingCommand> pResponse(pResponseFuture->getCommand());
 
   if (m_pAsyncCallBack == NULL) {
     return;
   }
+  int opaque = pResponseFuture->getOpaque();
   SendCallback* pCallback = static_cast<SendCallback*>(m_pAsyncCallBack);
 
   if (!pResponse) {
@@ -85,14 +81,44 @@ void SendCallbackWrap::operationComplete(ResponseFuture* pResponseFuture,
     LOG_ERROR("send failed of:%d", pResponseFuture->getOpaque());
   } else {
     try {
-      SendResult ret = m_pClientAPI->processSendResponse(m_brokerName, m_msg,
-                                                         pResponse.get());
-      if (pCallback) pCallback->onSuccess(ret);
-    } catch (MQException& e) {
-      LOG_ERROR(e.what());
+      SendResult ret = m_pClientAPI->processSendResponse(m_brokerName, m_msg, pResponse.get());
       if (pCallback) {
-        MQException exception("process send response error", -1, __FILE__,
-                              __LINE__);
+        LOG_DEBUG("operationComplete: processSendResponse success, opaque:%d, maxRetryTime:%d, retrySendTimes:%d",
+                  opaque, pResponseFuture->getMaxRetrySendTimes(), pResponseFuture->getRetrySendTimes());
+        pCallback->onSuccess(ret);
+      }
+    } catch (MQException& e) {
+      LOG_ERROR("operationComplete: processSendResponse exception: %s", e.what());
+
+      // broker may return exception, need consider retry send
+      int maxRetryTimes = pResponseFuture->getMaxRetrySendTimes();
+      int retryTimes = pResponseFuture->getRetrySendTimes();
+      if (pResponseFuture->getAsyncFlag() && retryTimes < maxRetryTimes && maxRetryTimes > 1) {
+        int64 left_timeout_ms = pResponseFuture->leftTime();
+        string brokerAddr = pResponseFuture->getBrokerAddr();
+        const RemotingCommand& requestCommand = pResponseFuture->getRequestCommand();
+        retryTimes += 1;
+        LOG_WARN("retry send, opaque:%d, sendTimes:%d, maxRetryTimes:%d, left_timeout:%lld, brokerAddr:%s, msg:%s",
+                 opaque, retryTimes, maxRetryTimes, left_timeout_ms, brokerAddr.data(), m_msg.toString().data());
+
+        bool exception_flag = false;
+        try {
+          m_pClientAPI->sendMessageAsync(pResponseFuture->getBrokerAddr(), m_brokerName, m_msg,
+                                         (RemotingCommand&)requestCommand, pCallback, left_timeout_ms, maxRetryTimes,
+                                         retryTimes);
+        } catch (MQClientException& e) {
+          LOG_ERROR("retry send exception:%s, opaque:%d, retryTimes:%d, msg:%s, not retry send again", e.what(), opaque,
+                    retryTimes, m_msg.toString().data());
+          exception_flag = true;
+        }
+
+        if (exception_flag == false) {
+          return;  // send retry again, here need return
+        }
+      }
+
+      if (pCallback) {
+        MQException exception("process send response error", -1, __FILE__, __LINE__);
         pCallback->onException(exception);
       }
     }
@@ -103,16 +129,16 @@ void SendCallbackWrap::operationComplete(ResponseFuture* pResponseFuture,
 }
 
 //<!************************************************************************
-PullCallbackWarp::PullCallbackWarp(AsyncCallback* pAsyncCallback,
-                                   MQClientAPIImpl* pclientAPI, void* pArg)
+PullCallbackWrap::PullCallbackWrap(AsyncCallback* pAsyncCallback, MQClientAPIImpl* pclientAPI, void* pArg)
     : AsyncCallbackWrap(pAsyncCallback, pclientAPI) {
   m_pArg = *static_cast<AsyncArg*>(pArg);
 }
 
-PullCallbackWarp::~PullCallbackWarp() {}
+PullCallbackWrap::~PullCallbackWrap() {}
 
-void PullCallbackWarp::onException() {
-  if (m_pAsyncCallBack == NULL) return;
+void PullCallbackWrap::onException() {
+  if (m_pAsyncCallBack == NULL)
+    return;
 
   PullCallback* pCallback = static_cast<PullCallback*>(m_pAsyncCallBack);
   if (pCallback) {
@@ -123,8 +149,7 @@ void PullCallbackWarp::onException() {
   }
 }
 
-void PullCallbackWarp::operationComplete(ResponseFuture* pResponseFuture,
-                                         bool bProducePullRequest) {
+void PullCallbackWrap::operationComplete(ResponseFuture* pResponseFuture, bool bProducePullRequest) {
   unique_ptr<RemotingCommand> pResponse(pResponseFuture->getCommand());
   if (m_pAsyncCallBack == NULL) {
     LOG_ERROR("m_pAsyncCallBack is NULL, AsyncPull could not continue");
@@ -141,28 +166,27 @@ void PullCallbackWarp::operationComplete(ResponseFuture* pResponseFuture,
       err = "wait response timeout";
     }
     MQException exception(err, -1, __FILE__, __LINE__);
-    LOG_ERROR("Async pull exception of opaque:%d",
-              pResponseFuture->getOpaque());
-    if (pCallback && bProducePullRequest) pCallback->onException(exception);
+    LOG_ERROR("Async pull exception of opaque:%d", pResponseFuture->getOpaque());
+    if (pCallback && bProducePullRequest)
+      pCallback->onException(exception);
   } else {
     try {
       if (m_pArg.pPullWrapper) {
-        unique_ptr<PullResult> pullResult(
-            m_pClientAPI->processPullResponse(pResponse.get()));
-        PullResult result = m_pArg.pPullWrapper->processPullResult(
-            m_pArg.mq, pullResult.get(), &m_pArg.subData);
+        unique_ptr<PullResult> pullResult(m_pClientAPI->processPullResponse(pResponse.get()));
+        PullResult result = m_pArg.pPullWrapper->processPullResult(m_pArg.mq, pullResult.get(), &m_pArg.subData);
         if (pCallback)
           pCallback->onSuccess(m_pArg.mq, result, bProducePullRequest);
       } else {
         LOG_ERROR("pPullWrapper had been destroyed with consumer");
       }
     } catch (MQException& e) {
-      LOG_ERROR(e.what());
+      LOG_ERROR("%s", e.what());
       MQException exception("pullResult error", -1, __FILE__, __LINE__);
-      if (pCallback && bProducePullRequest) pCallback->onException(exception);
+      if (pCallback && bProducePullRequest)
+        pCallback->onException(exception);
     }
   }
 }
 
 //<!***************************************************************************
-}  //<!end namespace;
+}  // namespace rocketmq

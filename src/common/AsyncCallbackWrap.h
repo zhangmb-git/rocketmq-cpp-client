@@ -20,25 +20,22 @@
 #include "AsyncArg.h"
 #include "AsyncCallback.h"
 #include "MQMessage.h"
+#include "RemotingCommand.h"
 #include "UtilAll.h"
 
 namespace rocketmq {
 
 class ResponseFuture;
 class MQClientAPIImpl;
+// class DefaultMQProducer;
 //<!***************************************************************************
-enum asyncCallBackType {
-  asyncCallbackWrap = 0,
-  sendCallbackWrap = 1,
-  pullCallbackWarp = 2
-};
+enum asyncCallBackType { asyncCallbackWrap = 0, sendCallbackWrap = 1, pullCallbackWrap = 2 };
 
 struct AsyncCallbackWrap {
  public:
   AsyncCallbackWrap(AsyncCallback* pAsyncCallback, MQClientAPIImpl* pclientAPI);
   virtual ~AsyncCallbackWrap();
-  virtual void operationComplete(ResponseFuture* pResponseFuture,
-                                 bool bProducePullRequest) = 0;
+  virtual void operationComplete(ResponseFuture* pResponseFuture, bool bProducePullRequest) = 0;
   virtual void onException() = 0;
   virtual asyncCallBackType getCallbackType() = 0;
 
@@ -50,12 +47,13 @@ struct AsyncCallbackWrap {
 //<!************************************************************************
 class SendCallbackWrap : public AsyncCallbackWrap {
  public:
-  SendCallbackWrap(const string& brokerName, const MQMessage& msg,
-                   AsyncCallback* pAsyncCallback, MQClientAPIImpl* pclientAPI);
+  SendCallbackWrap(const string& brokerName,
+                   const MQMessage& msg,
+                   AsyncCallback* pAsyncCallback,
+                   MQClientAPIImpl* pClientAPI);
 
   virtual ~SendCallbackWrap(){};
-  virtual void operationComplete(ResponseFuture* pResponseFuture,
-                                 bool bProducePullRequest);
+  virtual void operationComplete(ResponseFuture* pResponseFuture, bool bProducePullRequest);
   virtual void onException();
   virtual asyncCallBackType getCallbackType() { return sendCallbackWrap; }
 
@@ -65,20 +63,18 @@ class SendCallbackWrap : public AsyncCallbackWrap {
 };
 
 //<!***************************************************************************
-class PullCallbackWarp : public AsyncCallbackWrap {
+class PullCallbackWrap : public AsyncCallbackWrap {
  public:
-  PullCallbackWarp(AsyncCallback* pAsyncCallback, MQClientAPIImpl* pclientAPI,
-                   void* pArg);
-  virtual ~PullCallbackWarp();
-  virtual void operationComplete(ResponseFuture* pResponseFuture,
-                                 bool bProducePullRequest);
+  PullCallbackWrap(AsyncCallback* pAsyncCallback, MQClientAPIImpl* pClientAPI, void* pArg);
+  virtual ~PullCallbackWrap();
+  virtual void operationComplete(ResponseFuture* pResponseFuture, bool bProducePullRequest);
   virtual void onException();
-  virtual asyncCallBackType getCallbackType() { return pullCallbackWarp; }
+  virtual asyncCallBackType getCallbackType() { return pullCallbackWrap; }
 
  private:
   AsyncArg m_pArg;
 };
 
 //<!***************************************************************************
-}  //<!end namespace;
-#endif  //<! _AsyncCallbackWrap_H_
+}  // namespace rocketmq
+#endif  // __ASYNCCALLBACKWRAP_H__

@@ -73,6 +73,9 @@
     <ClCompile Include="evrpc.c">
       <Filter>extern</Filter>
     </ClCompile>
+    <ClCompile Include="bufferevent_openssl.c">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">

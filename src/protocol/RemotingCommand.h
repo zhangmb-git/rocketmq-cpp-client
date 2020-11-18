@@ -31,18 +31,23 @@ const int RPC_ONEWAY = 1;  // 0, RPC // 1, Oneway;
 //<!***************************************************************************
 class RemotingCommand {
  public:
+  RemotingCommand() : m_code(0){};
   RemotingCommand(int code, CommandHeader* pCustomHeader = NULL);
-  RemotingCommand(int code, string language, int version, int opaque, int flag,
-                  string remark, CommandHeader* pCustomHeader);
+  RemotingCommand(int code,
+                  string language,
+                  int version,
+                  int opaque,
+                  int flag,
+                  string remark,
+                  CommandHeader* pCustomHeader);
+  RemotingCommand(const RemotingCommand& command);
+  RemotingCommand& operator=(const RemotingCommand& command);
   virtual ~RemotingCommand();
-
   const MemoryBlock* GetHead() const;
   const MemoryBlock* GetBody() const;
-
   void SetBody(const char* pData, int len);
   void setOpaque(const int opa);
   void SetExtHeader(int code);
-
   void setCode(int code);
   int getCode() const;
   int getOpaque() const;
@@ -53,11 +58,9 @@ class RemotingCommand {
   void markOnewayRPC();
   bool isOnewayRPC();
   void setParsedJson(Json::Value json);
-
   CommandHeader* getCommandHeader() const;
   const int getFlag() const;
   const int getVersion() const;
-
   void addExtField(const string& key, const string& value);
   string getMsgBody() const;
   void setMsgBody(const string& body);
@@ -65,6 +68,10 @@ class RemotingCommand {
  public:
   void Encode();
   static RemotingCommand* Decode(const MemoryBlock& mem);
+  std::string ToString() const;
+
+ private:
+  void Assign(const RemotingCommand& command);
 
  private:
   int m_code;
@@ -76,13 +83,13 @@ class RemotingCommand {
   string m_msgBody;
   map<string, string> m_extFields;
 
-  static boost::mutex m_clock;
   MemoryBlock m_head;
   MemoryBlock m_body;
   //<!save here
   Json::Value m_parsedJson;
-  static boost::atomic<int> s_seqNumber;
   unique_ptr<CommandHeader> m_pExtHeader;
+
+  static boost::atomic<int> s_seqNumber;
 };
 
 }  //<!end namespace;

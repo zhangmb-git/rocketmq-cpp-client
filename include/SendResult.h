@@ -21,38 +21,51 @@
 #include "RocketMQClient.h"
 
 namespace rocketmq {
-//<!***************************************************************************
-//<!all to Master;
-enum SendStatus {
-  SEND_OK,
-  SEND_FLUSH_DISK_TIMEOUT,
-  SEND_FLUSH_SLAVE_TIMEOUT,
-  SEND_SLAVE_NOT_AVAILABLE
-};
 
-//<!***************************************************************************
+enum SendStatus { SEND_OK, SEND_FLUSH_DISK_TIMEOUT, SEND_FLUSH_SLAVE_TIMEOUT, SEND_SLAVE_NOT_AVAILABLE };
+
 class ROCKETMQCLIENT_API SendResult {
  public:
   SendResult();
-  SendResult(const SendStatus& sendStatus, const std::string& msgId,
-             const MQMessageQueue& messageQueue, int64 queueOffset);
+  SendResult(const SendStatus& sendStatus,
+             const std::string& msgId,
+             const std::string& offsetMsgId,
+             const MQMessageQueue& messageQueue,
+             int64 queueOffset);
+  SendResult(const SendStatus& sendStatus,
+             const std::string& msgId,
+             const std::string& offsetMsgId,
+             const MQMessageQueue& messageQueue,
+             int64 queueOffset,
+             const std::string& regionId);
 
   virtual ~SendResult();
   SendResult(const SendResult& other);
   SendResult& operator=(const SendResult& other);
 
+  void setTransactionId(const std::string& id) { m_transactionId = id; }
+
+  std::string getTransactionId() { return m_transactionId; }
+
   const std::string& getMsgId() const;
+  const std::string& getOffsetMsgId() const;
+
+  const std::string& getRegionId() const;
+  void setRegionId(const std::string& regionId);
   SendStatus getSendStatus() const;
   MQMessageQueue getMessageQueue() const;
   int64 getQueueOffset() const;
+  std::string toString() const;
 
  private:
   SendStatus m_sendStatus;
   std::string m_msgId;
+  std::string m_offsetMsgId;
   MQMessageQueue m_messageQueue;
   int64 m_queueOffset;
+  std::string m_transactionId;
+  std::string m_regionId;
 };
 
-//<!***************************************************************************
-}  //<!end namespace;
+}  // namespace rocketmq
 #endif

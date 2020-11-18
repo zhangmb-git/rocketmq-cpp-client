@@ -21,6 +21,9 @@
 #include <string>
 #include "RemotingSerializable.h"
 
+using std::map;
+using std::string;
+
 namespace rocketmq {
 //<!***************************************************************************
 class KVTable : public RemotingSerializable {
@@ -36,6 +39,6 @@ class KVTable : public RemotingSerializable {
  private:
   map<string, string> m_table;
 };
-}  //<!end namespace;
+}  // namespace rocketmq
 
 #endif

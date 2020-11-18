@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 #include "SendResult.h"
+#include <sstream>
 #include "UtilAll.h"
 #include "VirtualEnvUtil.h"
 
@@ -22,39 +23,90 @@ namespace rocketmq {
 //<!***************************************************************************
 SendResult::SendResult() : m_sendStatus(SEND_OK), m_queueOffset(0) {}
 
-SendResult::SendResult(const SendStatus& sendStatus, const string& msgId,
-                       const MQMessageQueue& messageQueue, int64 queueOffset)
+SendResult::SendResult(const SendStatus& sendStatus,
+                       const std::string& msgId,
+                       const std::string& offsetMsgId,
+                       const MQMessageQueue& messageQueue,
+                       int64 queueOffset)
     : m_sendStatus(sendStatus),
       m_msgId(msgId),
+      m_offsetMsgId(offsetMsgId),
       m_messageQueue(messageQueue),
       m_queueOffset(queueOffset) {}
+
+SendResult::SendResult(const SendStatus& sendStatus,
+                       const std::string& msgId,
+                       const std::string& offsetMsgId,
+                       const MQMessageQueue& messageQueue,
+                       int64 queueOffset,
+                       const string& regionId)
+    : m_sendStatus(sendStatus),
+      m_msgId(msgId),
+      m_offsetMsgId(offsetMsgId),
+      m_messageQueue(messageQueue),
+      m_queueOffset(queueOffset),
+      m_regionId(regionId) {}
 
 SendResult::SendResult(const SendResult& other) {
   m_sendStatus = other.m_sendStatus;
   m_msgId = other.m_msgId;
+  m_offsetMsgId = other.m_offsetMsgId;
   m_messageQueue = other.m_messageQueue;
   m_queueOffset = other.m_queueOffset;
+  m_regionId = other.m_regionId;
 }
 
 SendResult& SendResult::operator=(const SendResult& other) {
   if (this != &other) {
     m_sendStatus = other.m_sendStatus;
     m_msgId = other.m_msgId;
+    m_offsetMsgId = other.m_offsetMsgId;
     m_messageQueue = other.m_messageQueue;
     m_queueOffset = other.m_queueOffset;
+    m_regionId = other.m_regionId;
   }
   return *this;
 }
 
 SendResult::~SendResult() {}
 
-const string& SendResult::getMsgId() const { return m_msgId; }
+const string& SendResult::getMsgId() const {
+  return m_msgId;
+}
 
-SendStatus SendResult::getSendStatus() const { return m_sendStatus; }
+const string& SendResult::getOffsetMsgId() const {
+  return m_offsetMsgId;
+}
 
-MQMessageQueue SendResult::getMessageQueue() const { return m_messageQueue; }
+const string& SendResult::getRegionId() const {
+  return m_regionId;
+}
+void SendResult::setRegionId(const string& regionId) {
+  m_regionId = regionId;
+}
+SendStatus SendResult::getSendStatus() const {
+  return m_sendStatus;
+}
 
-int64 SendResult::getQueueOffset() const { return m_queueOffset; }
+MQMessageQueue SendResult::getMessageQueue() const {
+  return m_messageQueue;
+}
+
+int64 SendResult::getQueueOffset() const {
+  return m_queueOffset;
+}
+
+std::string SendResult::toString() const {
+  stringstream ss;
+  ss << "SendResult: ";
+  ss << "sendStatus:" << m_sendStatus;
+  ss << ",msgId:" << m_msgId;
+  ss << ",offsetMsgId:" << m_offsetMsgId;
+  ss << ",queueOffset:" << m_queueOffset;
+  ss << ",transactionId:" << m_transactionId;
+  ss << ",messageQueue:" << m_messageQueue.toString();
+  return ss.str();
+}
 
 //<!************************************************************************
-}  //<!end namespace;
+}  // namespace rocketmq

@@ -21,26 +21,27 @@
 #include "SessionCredentials.h"
 
 namespace rocketmq {
+
 boost::atomic<int> RemotingCommand::s_seqNumber;
-boost::mutex RemotingCommand::m_clock;
+
 //<!************************************************************************
-RemotingCommand::RemotingCommand(int code,
-                                 CommandHeader* pExtHeader /* = NULL */)
+RemotingCommand::RemotingCommand(int code, CommandHeader* pExtHeader /* = NULL */)
     : m_code(code),
-      m_language("CPP"),
+      m_language(MQVersion::s_CurrentLanguage),
       m_version(MQVersion::s_CurrentVersion),
       m_flag(0),
       m_remark(""),
       m_pExtHeader(pExtHeader) {
-  boost::lock_guard<boost::mutex> lock(m_clock);
-  m_opaque = (s_seqNumber.load(boost::memory_order_acquire)) %
-             (numeric_limits<int>::max());
-  s_seqNumber.store(m_opaque, boost::memory_order_release);
-  ++s_seqNumber;
+  // mask sign bit
+  m_opaque = s_seqNumber.fetch_add(1, boost::memory_order_relaxed) & numeric_limits<int>::max();
 }
 
-RemotingCommand::RemotingCommand(int code, string language, int version,
-                                 int opaque, int flag, string remark,
+RemotingCommand::RemotingCommand(int code,
+                                 string language,
+                                 int version,
+                                 int opaque,
+                                 int flag,
+                                 string remark,
                                  CommandHeader* pExtHeader)
     : m_code(code),
       m_language(language),
@@ -50,12 +51,44 @@ RemotingCommand::RemotingCommand(int code, string language, int version,
       m_remark(remark),
       m_pExtHeader(pExtHeader) {}
 
-RemotingCommand::~RemotingCommand() { m_pExtHeader = NULL; }
+RemotingCommand::RemotingCommand(const RemotingCommand& command) {
+  Assign(command);
+}
+
+RemotingCommand& RemotingCommand::operator=(const RemotingCommand& command) {
+  if (this != &command) {
+    Assign(command);
+  }
+  return *this;
+}
+
+RemotingCommand::~RemotingCommand() {
+  m_pExtHeader = NULL;
+}
+
+void RemotingCommand::Assign(const RemotingCommand& command) {
+  m_code = command.m_code;
+  m_language = command.m_language;
+  m_version = command.m_version;
+  m_opaque = command.m_opaque;
+  m_flag = command.m_flag;
+  m_remark = command.m_remark;
+  m_msgBody = command.m_msgBody;
+
+  for (auto& it : command.m_extFields) {
+    m_extFields[it.first] = it.second;
+  }
+
+  m_head = command.m_head;
+  m_body = command.m_body;
+  m_parsedJson = command.m_parsedJson;
+  // m_pExtHeader = command.m_pExtHeader; //ignore this filed at this moment, if need please add it
+}
 
 void RemotingCommand::Encode() {
   Json::Value root;
   root["code"] = m_code;
-  root["language"] = "CPP";
+  root["language"] = m_language;
   root["version"] = m_version;
   root["opaque"] = m_opaque;
   root["flag"] = m_flag;
@@ -65,22 +98,16 @@ void RemotingCommand::Encode() {
     Json::Value extJson;
     m_pExtHeader->Encode(extJson);
 
-    extJson[SessionCredentials::Signature] =
-        m_extFields[SessionCredentials::Signature];
-    extJson[SessionCredentials::AccessKey] =
-        m_extFields[SessionCredentials::AccessKey];
-    extJson[SessionCredentials::ONSChannelKey] =
-        m_extFields[SessionCredentials::ONSChannelKey];
+    extJson[SessionCredentials::Signature] = m_extFields[SessionCredentials::Signature];
+    extJson[SessionCredentials::AccessKey] = m_extFields[SessionCredentials::AccessKey];
+    extJson[SessionCredentials::ONSChannelKey] = m_extFields[SessionCredentials::ONSChannelKey];
 
     root["extFields"] = extJson;
   } else {  // for heartbeat
     Json::Value extJson;
-    extJson[SessionCredentials::Signature] =
-        m_extFields[SessionCredentials::Signature];
-    extJson[SessionCredentials::AccessKey] =
-        m_extFields[SessionCredentials::AccessKey];
-    extJson[SessionCredentials::ONSChannelKey] =
-        m_extFields[SessionCredentials::ONSChannelKey];
+    extJson[SessionCredentials::Signature] = m_extFields[SessionCredentials::Signature];
+    extJson[SessionCredentials::AccessKey] = m_extFields[SessionCredentials::AccessKey];
+    extJson[SessionCredentials::ONSChannelKey] = m_extFields[SessionCredentials::ONSChannelKey];
     root["extFields"] = extJson;
   }
 
@@ -100,9 +127,13 @@ void RemotingCommand::Encode() {
   m_head.copyFrom(data.c_str(), sizeof(messageHeader), headLen);
 }
 
-const MemoryBlock* RemotingCommand::GetHead() const { return &m_head; }
+const MemoryBlock* RemotingCommand::GetHead() const {
+  return &m_head;
+}
 
-const MemoryBlock* RemotingCommand::GetBody() const { return &m_body; }
+const MemoryBlock* RemotingCommand::GetBody() const {
+  return &m_body;
+}
 
 void RemotingCommand::SetBody(const char* pData, int len) {
   m_body.reset();
@@ -141,12 +172,10 @@ RemotingCommand* RemotingCommand::Decode(const MemoryBlock& mem) {
     remark = object["remark"].asString();
   }
   LOG_DEBUG(
-      "code:%d, remark:%s, version:%d, opaque:%d, flag:%d, remark:%s, "
+      "code:%d, language:%s, version:%d, opaque:%d, flag:%d, remark:%s, "
       "headLen:%d, bodyLen:%d ",
-      code, language.c_str(), version, opaque, flag, remark.c_str(), headLen,
-      bodyLen);
-  RemotingCommand* cmd =
-      new RemotingCommand(code, language, version, opaque, flag, remark, NULL);
+      code, language.c_str(), version, opaque, flag, remark.c_str(), headLen, bodyLen);
+  RemotingCommand* cmd = new RemotingCommand(code, language, version, opaque, flag, remark, NULL);
   cmd->setParsedJson(object);
   if (bodyLen > 0) {
     cmd->SetBody(pData + 4 + headLen, bodyLen);
@@ -174,7 +203,9 @@ bool RemotingCommand::isOnewayRPC() {
   return (m_flag & bits) == bits;
 }
 
-void RemotingCommand::setOpaque(const int opa) { m_opaque = opa; }
+void RemotingCommand::setOpaque(const int opa) {
+  m_opaque = opa;
+}
 
 void RemotingCommand::SetExtHeader(int code) {
   try {
@@ -183,6 +214,7 @@ void RemotingCommand::SetExtHeader(int code) {
       m_pExtHeader = NULL;
       switch (code) {
         case SEND_MESSAGE:
+        case SEND_MESSAGE_V2:
           m_pExtHeader.reset(SendMessageResponseHeader::Decode(ext));
           break;
         case PULL_MESSAGE:
@@ -198,8 +230,7 @@ void RemotingCommand::SetExtHeader(int code) {
           m_pExtHeader.reset(SearchOffsetResponseHeader::Decode(ext));
           break;
         case GET_EARLIEST_MSG_STORETIME:
-          m_pExtHeader.reset(
-              GetEarliestMsgStoretimeResponseHeader::Decode(ext));
+          m_pExtHeader.reset(GetEarliestMsgStoretimeResponseHeader::Decode(ext));
           break;
         case QUERY_CONSUMER_OFFSET:
           m_pExtHeader.reset(QueryConsumerOffsetResponseHeader::Decode(ext));
@@ -211,8 +242,11 @@ void RemotingCommand::SetExtHeader(int code) {
           m_pExtHeader.reset(GetConsumerRunningInfoRequestHeader::Decode(ext));
           break;
         case NOTIFY_CONSUMER_IDS_CHANGED:
-          m_pExtHeader.reset(
-              NotifyConsumerIdsChangedRequestHeader::Decode(ext));
+          m_pExtHeader.reset(NotifyConsumerIdsChangedRequestHeader::Decode(ext));
+          break;
+        case CHECK_TRANSACTION_STATE:
+          m_pExtHeader.reset(CheckTransactionStateRequestHeader::Decode(ext));
+          break;
         default:
           break;
       }
@@ -222,32 +256,59 @@ void RemotingCommand::SetExtHeader(int code) {
   }
 }
 
-void RemotingCommand::setCode(int code) { m_code = code; }
+void RemotingCommand::setCode(int code) {
+  m_code = code;
+}
 
-int RemotingCommand::getCode() const { return m_code; }
+int RemotingCommand::getCode() const {
+  return m_code;
+}
 
-int RemotingCommand::getOpaque() const { return m_opaque; }
+int RemotingCommand::getOpaque() const {
+  return m_opaque;
+}
 
-string RemotingCommand::getRemark() const { return m_remark; }
+string RemotingCommand::getRemark() const {
+  return m_remark;
+}
 
-void RemotingCommand::setRemark(string mark) { m_remark = mark; }
+void RemotingCommand::setRemark(string mark) {
+  m_remark = mark;
+}
 
 CommandHeader* RemotingCommand::getCommandHeader() const {
   return m_pExtHeader.get();
 }
 
-void RemotingCommand::setParsedJson(Json::Value json) { m_parsedJson = json; }
+void RemotingCommand::setParsedJson(Json::Value json) {
+  m_parsedJson = json;
+}
 
-const int RemotingCommand::getFlag() const { return m_flag; }
+const int RemotingCommand::getFlag() const {
+  return m_flag;
+}
 
-const int RemotingCommand::getVersion() const { return m_version; }
+const int RemotingCommand::getVersion() const {
+  return m_version;
+}
 
-void RemotingCommand::setMsgBody(const string& body) { m_msgBody = body; }
+void RemotingCommand::setMsgBody(const string& body) {
+  m_msgBody = body;
+}
 
-string RemotingCommand::getMsgBody() const { return m_msgBody; }
+string RemotingCommand::getMsgBody() const {
+  return m_msgBody;
+}
 
 void RemotingCommand::addExtField(const string& key, const string& value) {
   m_extFields[key] = value;
 }
 
-}  //<!end namespace;
+std::string RemotingCommand::ToString() const {
+  std::stringstream ss;
+  ss << "code:" << m_code << ",opaque:" << m_opaque << ",flag:" << m_flag << ",body.size:" << m_body.getSize()
+     << ",header.size:" << m_head.getSize();
+  return ss.str();
+}
+
+}  // namespace rocketmq

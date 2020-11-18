@@ -21,7 +21,6 @@
 #include "Logging.h"
 #include "MQClientException.h"
 #include "MQMessageQueue.h"
-#include "RocketMQClient.h"
 
 namespace rocketmq {
 //<!***************************************************************************
@@ -71,12 +70,9 @@ class AllocateMQAveragely : public AllocateMQStrategy {
 
     int mqAllSize = mqAll.size();
     int mod = mqAllSize % cidAllSize;
-    int averageSize = mqAllSize <= cidAllSize
-                          ? 1
-                          : (mod > 0 && index < mod ? mqAllSize / cidAllSize + 1
-                                                    : mqAllSize / cidAllSize);
-    int startIndex = (mod > 0 && index < mod) ? index * averageSize
-                                              : index * averageSize + mod;
+    int averageSize =
+        mqAllSize <= cidAllSize ? 1 : (mod > 0 && index < mod ? mqAllSize / cidAllSize + 1 : mqAllSize / cidAllSize);
+    int startIndex = (mod > 0 && index < mod) ? index * averageSize : index * averageSize + mod;
     int range = (std::min)(averageSize, mqAllSize - startIndex);
     LOG_INFO(
         "range is:%d, index is:%d, mqAllSize is:%d, averageSize is:%d, "
@@ -96,5 +92,5 @@ class AllocateMQAveragely : public AllocateMQStrategy {
 };
 
 //<!***************************************************************************
-}  //<!end namespace;
+}  // namespace rocketmq
 #endif
