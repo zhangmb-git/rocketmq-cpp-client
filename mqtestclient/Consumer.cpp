@@ -44,7 +44,7 @@ void Consumer::Start() {
         cout << e << endl;
     }
 
-    g_tps.Start();
+    m_tps.Start();
     int msgcount = m_msgCount.load();
 }
 

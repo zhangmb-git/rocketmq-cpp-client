@@ -99,7 +99,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -162,32 +162,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="base\Base64.cpp" />
-    <ClCompile Include="base\BaseSocket.cpp" />
-    <ClCompile Include="base\Condition.cpp" />
-    <ClCompile Include="base\ConfigFileReader.cpp" />
-    <ClCompile Include="base\EncDec.cpp" />
-    <ClCompile Include="base\EventDispatch.cpp" />
-    <ClCompile Include="base\FileUtil.cpp" />
-    <ClCompile Include="base\HttpClient.cpp" />
-    <ClCompile Include="base\HttpParserWrapper.cpp" />
-    <ClCompile Include="base\HttpServer.cpp" />
-    <ClCompile Include="base\http_parser.cpp" />
-    <ClCompile Include="base\imconn.cpp" />
-    <ClCompile Include="base\ImPduBase.cpp" />
-    <ClCompile Include="base\im_conn_util.cpp" />
-    <ClCompile Include="base\Lock.cpp" />
-    <ClCompile Include="base\log4z.cpp" />
-    <ClCompile Include="base\netlib.cpp" />
-    <ClCompile Include="base\Process.cpp" />
-    <ClCompile Include="base\rbtree.cpp" />
-    <ClCompile Include="base\ServInfo.cpp" />
-    <ClCompile Include="base\SslSocket.cpp" />
-    <ClCompile Include="base\Thread.cpp" />
-    <ClCompile Include="base\ThreadPool.cpp" />
-    <ClCompile Include="base\TokenValidator.cpp" />
-    <ClCompile Include="base\util.cpp" />
-    <ClCompile Include="base\UtilPdu.cpp" />
     <ClCompile Include="Consumer.cpp" />
     <ClCompile Include="Global.cpp" />
     <ClCompile Include="mqtestclient.cpp" />
@@ -197,49 +171,12 @@
     <ClCompile Include="RocketMQ.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="base\atomic.h" />
-    <ClInclude Include="base\Base64.h" />
-    <ClInclude Include="base\BaseSocket.h" />
-    <ClInclude Include="base\Condition.h" />
-    <ClInclude Include="base\ConfigFileReader.h" />
-    <ClInclude Include="base\CPlusPlus11.h" />
-    <ClInclude Include="base\EncDec.h" />
-    <ClInclude Include="base\EventDispatch.h" />
-    <ClInclude Include="base\FileUtil.h" />
-    <ClInclude Include="base\HttpClient.h" />
-    <ClInclude Include="base\HttpParserWrapper.h" />
-    <ClInclude Include="base\HttpServer.h" />
-    <ClInclude Include="base\http_parser.h" />
-    <ClInclude Include="base\imconn.h" />
-    <ClInclude Include="base\impdu.h" />
-    <ClInclude Include="base\ImPduBase.h" />
-    <ClInclude Include="base\im_conn_util.h" />
-    <ClInclude Include="base\Lock.h" />
-    <ClInclude Include="base\log4z.h" />
-    <ClInclude Include="base\netlib.h" />
-    <ClInclude Include="base\ostype.h" />
-    <ClInclude Include="base\Process.h" />
-    <ClInclude Include="base\public_define.h" />
-    <ClInclude Include="base\rbtree.h" />
-    <ClInclude Include="base\ServInfo.h" />
-    <ClInclude Include="base\singleton.h" />
-    <ClInclude Include="base\SslSocket.h" />
-    <ClInclude Include="base\Task.h" />
-    <ClInclude Include="base\Thread.h" />
-    <ClInclude Include="base\ThreadPool.h" />
-    <ClInclude Include="base\TokenValidator.h" />
-    <ClInclude Include="base\util.h" />
-    <ClInclude Include="base\UtilPdu.h" />
-    <ClInclude Include="base\version.h" />
     <ClInclude Include="Consumer.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="MsgHandler.h" />
     <ClInclude Include="MsgListener.h" />
     <ClInclude Include="Producer.h" />
     <ClInclude Include="RocketMQ.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="base\CMakeLists.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
