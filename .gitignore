@@ -3,3 +3,5 @@ Debug/
 *.iobj
 *.ipdb
 Release/
+mqtestclient/hessian/Exception.cpp
+mqtestclient/hessian/

@@ -12,7 +12,7 @@ using  namespace  std;
 const  string  strAdd = "10.0.57.216:9876;10.0.58.152:9876";
 const  string  strGroupName = "ITEM_GROUP";
 const  string  strTopic = "ITEM";
-const  string  strTag = "ITEM_UPDATE";
+const  string  strTag = "ITEM_PRICE_UPDATE";
 
 class TpsReportService {
   public:

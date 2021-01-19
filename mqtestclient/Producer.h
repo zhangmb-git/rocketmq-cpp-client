@@ -10,7 +10,7 @@ class Producer {
     ~Producer();
 
     void Send(const string topic, const string tag, const string body);
-    void Send(const string topic, const string tag, const string strKey, const string body);
+    //void Send(const string topic, const string tag, const string strKey, const string body);
 
     void  Stop();
   private:

@@ -13,6 +13,7 @@ void  Consumer::_init() {
     consumer.setGroupName(strGroupName);
     //consumer.setNamesrvDomain(info.namesrv_domain);
     consumer.setConsumeFromWhere(CONSUME_FROM_LAST_OFFSET);
+
     consumer.setInstanceName(strGroupName);
     consumer.subscribe(strTopic, strTag);
 
@@ -30,8 +31,6 @@ void  Consumer::_init() {
     // consumer.setBrokerSuspendMaxTimeMillis(3000);
     // 长轮询模式，拉取超时时间，默认30s
     //consumer.setConsumerTimeoutMillisWhenSuspend(5000);
-
-
     consumer.registerMessageListener(&m_listener);
 
 }
