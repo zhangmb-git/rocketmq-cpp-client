@@ -1,6 +1,6 @@
 #include "Consumer.h"
 
-Consumer::Consumer() : consumer(strGroupName), m_listener(this), m_msgCount(1) {
+Consumer::Consumer() : consumer(""), m_listener(this), m_msgCount(1) {
     _init();
 }
 
@@ -9,8 +9,9 @@ Consumer::~Consumer() {
 }
 
 void  Consumer::_init() {
-    consumer.setNamesrvAddr(strAdd);
     consumer.setGroupName(strGroupName);
+    consumer.setNamesrvAddr(strAdd);
+
     //consumer.setNamesrvDomain(info.namesrv_domain);
     consumer.setConsumeFromWhere(CONSUME_FROM_LAST_OFFSET);
 
